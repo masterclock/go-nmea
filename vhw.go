@@ -15,13 +15,34 @@ type VHW struct {
 	Magnetic        string
 	SpeedKnots      float64
 	Knots           string
-	SpeedKmh        float64
-	Kmh             string
+	SpeedKph        float64
+	Kph             string
+}
+
+func (s VHW) ToMap() (map[string]interface{}, error) {
+	m := map[string]interface{}{
+		"heading_true":     s.HeadingTrue,
+		"true":             s.True,
+		"heading_magnetic": s.HeadingMagnetic,
+		"magnetic":         s.Magnetic,
+		"speed_knots":      s.SpeedKnots,
+		"knots":            s.Knots,
+		"speed_kph":        s.SpeedKph,
+		"kph":              s.Kph,
+	}
+	bm, err := s.BaseSentence.toMap()
+	if err != nil {
+		return m, err
+	}
+	for k, v := range bm {
+		m[k] = v
+	}
+	return m, nil
 }
 
 // newVHW constructor
 func newVHW(s BaseSentence) (VHW, error) {
-	p := newParser(s)
+	p := NewParser(s)
 	p.AssertType(TypeVHW)
 	m := VHW{
 		BaseSentence:    s,
@@ -31,8 +52,8 @@ func newVHW(s BaseSentence) (VHW, error) {
 		Magnetic:        p.String(3, "Magnetic"),
 		SpeedKnots:      p.Float64(4, "speedKnots"),
 		Knots:           p.String(5, "Knots"),
-		SpeedKmh:        p.Float64(6, "SpeedKmh"),
-		Kmh:             p.String(7, "Kmh"),
+		SpeedKph:        p.Float64(6, "SpeedKph"),
+		Kph:             p.String(7, "Kph"),
 	}
 	return m, p.Err()
 }

@@ -13,9 +13,24 @@ type HDT struct {
 	True    bool    // Heading is relative to true north
 }
 
+func (s HDT) ToMap() (map[string]interface{}, error) {
+	m := map[string]interface{}{
+		"heading": s.Heading,
+		"true":    s.True,
+	}
+	bm, err := s.BaseSentence.toMap()
+	if err != nil {
+		return m, err
+	}
+	for k, v := range bm {
+		m[k] = v
+	}
+	return m, nil
+}
+
 // newHDT constructor
 func newHDT(s BaseSentence) (HDT, error) {
-	p := newParser(s)
+	p := NewParser(s)
 	p.AssertType(TypeHDT)
 	m := HDT{
 		BaseSentence: s,

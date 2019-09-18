@@ -14,9 +14,25 @@ type DPT struct {
 	Range  float64 // maximum range scale in use
 }
 
+func (s DPT) ToMap() (map[string]interface{}, error) {
+	m := map[string]interface{}{
+		"depth":  s.Depth,
+		"offset": s.Offset,
+		"range":  s.Range,
+	}
+	bm, err := s.BaseSentence.toMap()
+	if err != nil {
+		return m, err
+	}
+	for k, v := range bm {
+		m[k] = v
+	}
+	return m, nil
+}
+
 // newDPT constructor
 func newDPT(s BaseSentence) (DPT, error) {
-	p := newParser(s)
+	p := NewParser(s)
 	p.AssertType(TypeDPT)
 	m := DPT{
 		BaseSentence: s,

@@ -21,9 +21,27 @@ type RTE struct {
 	Idents                    []string // List of ident of waypoints
 }
 
+func (s RTE) ToMap() (map[string]interface{}, error) {
+	m := map[string]interface{}{
+		"number_of_sentences":           s.NumberOfSentences,
+		"sentence_number":               s.SentenceNumber,
+		"active_route_or_waypoint_list": s.ActiveRouteOrWaypointList,
+		"name":                          s.Name,
+		"idents":                        s.Idents,
+	}
+	bm, err := s.BaseSentence.toMap()
+	if err != nil {
+		return m, err
+	}
+	for k, v := range bm {
+		m[k] = v
+	}
+	return m, nil
+}
+
 // newRTE constructor
 func newRTE(s BaseSentence) (RTE, error) {
-	p := newParser(s)
+	p := NewParser(s)
 	p.AssertType(TypeRTE)
 	return RTE{
 		BaseSentence:              s,

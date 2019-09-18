@@ -8,17 +8,36 @@ const (
 // ALR set alarm state
 // http://aprs.gids.nl/nmea/#hdt
 type ALR struct {
-	BaseSentence
-	Time      Time   // time of alarm condition change, UTC
-	ID        string // unique alarm number (identifier) at alarm source
-	Condition string // alarm condition
-	ACK       string // alarm acknowledge state A=acknowledged, V=unacknowledged
-	Text      string // alarm's description text
+	BaseSentence `mapstructure:"-,omitempty" json:"base_sentence,omitempty"`
+	Time         Time   `mapstructure:"-,omitempty" json:"time,omitempty"`              // time of alarm condition change, UTC
+	ID           string `mapstructure:"id,omitempty" json:"id,omitempty"`               // unique alarm number (identifier) at alarm source
+	Condition    string `mapstructure:"condition,omitempty" json:"condition,omitempty"` // alarm condition
+	ACK          string `mapstructure:"ack,omitempty" json:"ack,omitempty"`             // alarm acknowledge state A=acknowledged, V=unacknowledged
+	Text         string `mapstructure:"text,omitempty" json:"text,omitempty"`           // alarm's description text
+}
+
+func (s ALR) ToMap() (map[string]interface{}, error) {
+	m := map[string]interface{}{
+		"time":       s.Time.String(),
+		"time_valid": s.Time.Valid,
+		"id":         s.ID,
+		"condition":  s.Condition,
+		"ack":        s.ACK,
+		"text":       s.Text,
+	}
+	bm, err := s.BaseSentence.toMap()
+	if err != nil {
+		return m, err
+	}
+	for k, v := range bm {
+		m[k] = v
+	}
+	return m, nil
 }
 
 // newALR constructor
 func newALR(s BaseSentence) (ALR, error) {
-	p := newParser(s)
+	p := NewParser(s)
 	p.AssertType(TypeALR)
 	m := ALR{
 		BaseSentence: s,

@@ -19,9 +19,27 @@ type GLL struct {
 	Validity  string  // validity - A-valid
 }
 
+func (s GLL) ToMap() (map[string]interface{}, error) {
+	m := map[string]interface{}{
+		"latitude":   s.Latitude,
+		"longitude":  s.Longitude,
+		"time":       s.Time.String(),
+		"time_valid": s.Time.Valid,
+		"validity":   s.Validity,
+	}
+	bm, err := s.BaseSentence.toMap()
+	if err != nil {
+		return m, err
+	}
+	for k, v := range bm {
+		m[k] = v
+	}
+	return m, nil
+}
+
 // newGLL constructor
 func newGLL(s BaseSentence) (GLL, error) {
-	p := newParser(s)
+	p := NewParser(s)
 	p.AssertType(TypeGLL)
 	return GLL{
 		BaseSentence: s,

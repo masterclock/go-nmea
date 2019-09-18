@@ -20,9 +20,27 @@ type VDMVDO struct {
 	Payload        []byte
 }
 
+func (s VDMVDO) ToMap() (map[string]interface{}, error) {
+	m := map[string]interface{}{
+		"num_fragments":   s.NumFragments,
+		"fragment_number": s.FragmentNumber,
+		"message_id":      s.MessageID,
+		"channel":         s.Channel,
+		"payload":         s.Payload,
+	}
+	bm, err := s.BaseSentence.toMap()
+	if err != nil {
+		return m, err
+	}
+	for k, v := range bm {
+		m[k] = v
+	}
+	return m, nil
+}
+
 // newVDMVDO constructor
 func newVDMVDO(s BaseSentence) (VDMVDO, error) {
-	p := newParser(s)
+	p := NewParser(s)
 	m := VDMVDO{
 		BaseSentence:   s,
 		NumFragments:   p.Int64(0, "number of fragments"),

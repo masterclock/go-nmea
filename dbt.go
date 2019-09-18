@@ -17,9 +17,28 @@ type DBT struct {
 	Fathom      string  // unit 'F'
 }
 
+func (s DBT) ToMap() (map[string]interface{}, error) {
+	m := map[string]interface{}{
+		"depth_feed":   s.DepthFeet,
+		"feet":         s.Feet,
+		"depth_meters": s.DepthMeters,
+		"meters":       s.Meters,
+		"depth_fathom": s.DepthFathom,
+		"fathom":       s.Fathom,
+	}
+	bm, err := s.BaseSentence.toMap()
+	if err != nil {
+		return m, err
+	}
+	for k, v := range bm {
+		m[k] = v
+	}
+	return m, nil
+}
+
 // newDBT constructor
 func newDBT(s BaseSentence) (DBT, error) {
-	p := newParser(s)
+	p := NewParser(s)
 	p.AssertType(TypeDBT)
 	m := DBT{
 		BaseSentence: s,

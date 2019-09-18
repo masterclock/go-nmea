@@ -14,9 +14,25 @@ type HBT struct {
 	ID       string  // sequential sequence identifier 0-9
 }
 
+func (s HBT) ToMap() (map[string]interface{}, error) {
+	m := map[string]interface{}{
+		"interval": s.Interval,
+		"status":   s.Status,
+		"id":       s.ID,
+	}
+	bm, err := s.BaseSentence.toMap()
+	if err != nil {
+		return m, err
+	}
+	for k, v := range bm {
+		m[k] = v
+	}
+	return m, nil
+}
+
 // newHBT constructor
 func newHBT(s BaseSentence) (HBT, error) {
-	p := newParser(s)
+	p := NewParser(s)
 	p.AssertType(TypeHBT)
 	m := HBT{
 		BaseSentence: s,

@@ -27,9 +27,28 @@ type GSA struct {
 	VDOP    float64  // Vertical dilution of precision.
 }
 
+func (s GSA) ToMap() (map[string]interface{}, error) {
+	m := map[string]interface{}{
+		"mode":     s.Mode,
+		"fix_type": s.FixType,
+		"sv":       s.SV,
+		"pdop":     s.PDOP,
+		"hdop":     s.HDOP,
+		"vdop":     s.VDOP,
+	}
+	bm, err := s.BaseSentence.toMap()
+	if err != nil {
+		return m, err
+	}
+	for k, v := range bm {
+		m[k] = v
+	}
+	return m, nil
+}
+
 // newGSA parses the GSA sentence into this struct.
 func newGSA(s BaseSentence) (GSA, error) {
-	p := newParser(s)
+	p := NewParser(s)
 	p.AssertType(TypeGSA)
 	m := GSA{
 		BaseSentence: s,

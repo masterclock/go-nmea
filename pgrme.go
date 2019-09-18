@@ -16,9 +16,25 @@ type PGRME struct {
 	Spherical  float64 // Overall spherical equivalent position error in meters
 }
 
+func (s PGRME) ToMap() (map[string]interface{}, error) {
+	m := map[string]interface{}{
+		"horizontal": s.Horizontal,
+		"vertical":   s.Vertical,
+		"spherical":  s.Spherical,
+	}
+	bm, err := s.BaseSentence.toMap()
+	if err != nil {
+		return m, err
+	}
+	for k, v := range bm {
+		m[k] = v
+	}
+	return m, nil
+}
+
 // newPGRME constructor
 func newPGRME(s BaseSentence) (PGRME, error) {
-	p := newParser(s)
+	p := NewParser(s)
 	p.AssertType(TypePGRME)
 
 	horizontal := p.Float64(0, "horizontal error")

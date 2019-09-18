@@ -17,9 +17,28 @@ type DBK struct {
 	Fathom      string  // unit 'F'
 }
 
+func (s DBK) ToMap() (map[string]interface{}, error) {
+	m := map[string]interface{}{
+		"depth_feed":   s.DepthFeet,
+		"feet":         s.Feet,
+		"depth_meters": s.DepthMeters,
+		"meters":       s.Meters,
+		"depth_fathom": s.DepthFathom,
+		"fathom":       s.Fathom,
+	}
+	bm, err := s.BaseSentence.toMap()
+	if err != nil {
+		return m, err
+	}
+	for k, v := range bm {
+		m[k] = v
+	}
+	return m, nil
+}
+
 // newDBK constructor
 func newDBK(s BaseSentence) (DBK, error) {
-	p := newParser(s)
+	p := NewParser(s)
 	p.AssertType(TypeDBK)
 	m := DBK{
 		BaseSentence: s,

@@ -16,9 +16,27 @@ type HDG struct {
 	VariationDirection string
 }
 
+func (s HDG) ToMap() (map[string]interface{}, error) {
+	m := map[string]interface{}{
+		"heading":             s.Heading,
+		"deviation":           s.Deviation,
+		"deviation_direction": s.DeviationDirection,
+		"variation":           s.Variation,
+		"variation_direction": s.VariationDirection,
+	}
+	bm, err := s.BaseSentence.toMap()
+	if err != nil {
+		return m, err
+	}
+	for k, v := range bm {
+		m[k] = v
+	}
+	return m, nil
+}
+
 // newHDG constructor
 func newHDG(s BaseSentence) (HDG, error) {
-	p := newParser(s)
+	p := NewParser(s)
 	p.AssertType(TypeHDG)
 	m := HDG{
 		BaseSentence:       s,

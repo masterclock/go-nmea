@@ -25,6 +25,7 @@ type Sentence interface {
 	Prefix() string
 	DataType() string
 	TalkerID() string
+	ToMap() (map[string]interface{}, error)
 }
 
 // BaseSentence contains the information about the NMEA sentence
@@ -54,8 +55,19 @@ func (s BaseSentence) TalkerID() string {
 // String formats the sentence into a string
 func (s BaseSentence) String() string { return s.Raw }
 
+func (s BaseSentence) toMap() (map[string]interface{}, error) {
+	m := map[string]interface{}{
+		"talker":   s.Talker,
+		"type":     s.Type,
+		"fields":   s.Fields,
+		"checksum": s.Checksum,
+		"raw":      s.Raw,
+	}
+	return m, nil
+}
+
 // parseSentence parses a raw message into it's fields
-func parseSentence(raw string) (BaseSentence, error) {
+func ParseSentence(raw string) (BaseSentence, error) {
 	startIndex := strings.IndexAny(raw, SentenceStart+SentenceStartEncapsulated)
 	if startIndex != 0 {
 		return BaseSentence{}, fmt.Errorf("nmea: sentence does not start with a '$' or '!'")
@@ -108,7 +120,7 @@ func xorChecksum(s string) string {
 
 // Parse parses the given string into the correct sentence type.
 func Parse(raw string) (Sentence, error) {
-	s, err := parseSentence(raw)
+	s, err := ParseSentence(raw)
 	if err != nil {
 		return nil, err
 	}

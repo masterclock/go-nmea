@@ -23,9 +23,31 @@ type RMC struct {
 	Variation float64 // Magnetic variation
 }
 
+func (s RMC) ToMap() (map[string]interface{}, error) {
+	m := map[string]interface{}{
+		"time":       s.Time.String(),
+		"time_valid": s.Time.Valid,
+		"validity":   s.Validity,
+		"latitude":   s.Latitude,
+		"longitude":  s.Longitude,
+		"speed":      s.Speed,
+		"course":     s.Course,
+		"date":       s.Date.String(),
+		"date_valid": s.Date.Valid,
+	}
+	bm, err := s.BaseSentence.toMap()
+	if err != nil {
+		return m, err
+	}
+	for k, v := range bm {
+		m[k] = v
+	}
+	return m, nil
+}
+
 // newRMC constructor
 func newRMC(s BaseSentence) (RMC, error) {
-	p := newParser(s)
+	p := NewParser(s)
 	p.AssertType(TypeRMC)
 	m := RMC{
 		BaseSentence: s,

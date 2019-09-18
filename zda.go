@@ -17,9 +17,28 @@ type ZDA struct {
 	OffsetMinutes int64 // Local time zone offset from GMT, minutes
 }
 
+func (s ZDA) ToMap() (map[string]interface{}, error) {
+	m := map[string]interface{}{
+		"time":           s.Time.String(),
+		"day":            s.Day,
+		"month":          s.Month,
+		"year":           s.Year,
+		"offset_hours":   s.OffsetHours,
+		"offset_minutes": s.OffsetMinutes,
+	}
+	bm, err := s.BaseSentence.toMap()
+	if err != nil {
+		return m, err
+	}
+	for k, v := range bm {
+		m[k] = v
+	}
+	return m, nil
+}
+
 // newZDA constructor
 func newZDA(s BaseSentence) (ZDA, error) {
-	p := newParser(s)
+	p := NewParser(s)
 	p.AssertType(TypeZDA)
 	return ZDA{
 		BaseSentence:  s,

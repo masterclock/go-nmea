@@ -2,6 +2,8 @@ package nmea
 
 import (
 	"strconv"
+
+	"github.com/mitchellh/mapstructure"
 )
 
 const (
@@ -10,25 +12,55 @@ const (
 )
 
 type ALCAlertEntry struct {
-	MCode         string // manufacture mnemonic code(FEC, null)
-	AlertID       string // alert identifier 000 - 999999
-	AlertInstance string // alert instance null
-	Revision      string // revision counter 1 - 99
+	MCode         string `json:"m_code,omitempty"`         // manufacture mnemonic code(FEC, null)
+	AlertID       string `json:"alert_id,omitempty"`       // alert identifier 000 - 999999
+	AlertInstance string `json:"alert_instance,omitempty"` // alert instance null
+	Revision      string `json:"revision,omitempty"`       // revision counter 1 - 99
 }
 
 // ALC cyclic alert list
 type ALC struct {
-	BaseSentence
-	TotalNum    int64 // total number of sentences this message 01 to 99
-	SentenceNum int64 // sentence index number 01-99
-	Index       int64 // sequential message index
-	AlertNum    int64 // Number of alert entries 0 - n
-	Alerts      []ALCAlertEntry
+	BaseSentence `json:"base_sentence,omitempty" mapstructure:"-"`
+	TotalNum     int64           `json:"total_num,omitempty" mapstructure:"total_num"`       // total number of sentences this message 01 to 99
+	SentenceNum  int64           `json:"sentence_num,omitempty" mapstructure:"sentence_num"` // sentence index number 01-99
+	Index        int64           `json:"index,omitempty" mapstructure:"index"`               // sequential message index
+	AlertNum     int64           `json:"alert_num,omitempty" mapstructure:"alert_num"`       // Number of alert entries 0 - n
+	Alerts       []ALCAlertEntry `json:"alerts,omitempty" mapstructure:"-"`
+}
+
+func (s ALC) ToMap() (map[string]interface{}, error) {
+	m := map[string]interface{}{}
+	err := mapstructure.Decode(s, &m)
+	if err != nil {
+		return map[string]interface{}{}, err
+	}
+	bm, err := s.BaseSentence.toMap()
+	if err != nil {
+		return m, err
+	}
+	for k, v := range bm {
+		m[k] = v
+	}
+	alerts := make([]map[string]interface{}, len(s.Alerts))
+	for idx, alert := range s.Alerts {
+		alerts[idx] = alert.toMap()
+	}
+	m["alerts"] = alerts
+	return m, nil
+}
+
+func (s ALCAlertEntry) toMap() map[string]interface{} {
+	return map[string]interface{}{
+		"m_code":         s.MCode,
+		"alert_id":       s.AlertID,
+		"alert_instance": s.AlertInstance,
+		"revision":       s.Revision,
+	}
 }
 
 // newALC constructor
 func newALC(s BaseSentence) (ALC, error) {
-	p := newParser(s)
+	p := NewParser(s)
 	p.AssertType(TypeALC)
 
 	entries := []ALCAlertEntry{}

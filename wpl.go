@@ -13,9 +13,25 @@ type WPL struct {
 	Ident     string  // Ident of nth waypoint
 }
 
+func (s WPL) ToMap() (map[string]interface{}, error) {
+	m := map[string]interface{}{
+		"latitude":  s.Latitude,
+		"longitude": s.Longitude,
+		"ident":     s.Ident,
+	}
+	bm, err := s.BaseSentence.toMap()
+	if err != nil {
+		return m, err
+	}
+	for k, v := range bm {
+		m[k] = v
+	}
+	return m, nil
+}
+
 // newWPL constructor
 func newWPL(s BaseSentence) (WPL, error) {
-	p := newParser(s)
+	p := NewParser(s)
 	p.AssertType(TypeWPL)
 	return WPL{
 		BaseSentence: s,

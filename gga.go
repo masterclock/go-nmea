@@ -32,9 +32,33 @@ type GGA struct {
 	DGPSId        string  // DGPS reference station ID.
 }
 
+func (s GGA) ToMap() (map[string]interface{}, error) {
+	m := map[string]interface{}{
+		"time":           s.Time.String(),
+		"time_valid":     s.Time.Valid,
+		"latitude":       s.Latitude,
+		"longitude":      s.Longitude,
+		"fix_quality":    s.FixQuality,
+		"num_satellites": s.NumSatellites,
+		"hdop":           s.HDOP,
+		"altitude":       s.Altitude,
+		"separation":     s.Separation,
+		"dgps_age":       s.DGPSAge,
+		"dgps_id":        s.DGPSAge,
+	}
+	bm, err := s.BaseSentence.toMap()
+	if err != nil {
+		return m, err
+	}
+	for k, v := range bm {
+		m[k] = v
+	}
+	return m, nil
+}
+
 // newGGA constructor
 func newGGA(s BaseSentence) (GGA, error) {
-	p := newParser(s)
+	p := NewParser(s)
 	p.AssertType(TypeGGA)
 	return GGA{
 		BaseSentence:  s,

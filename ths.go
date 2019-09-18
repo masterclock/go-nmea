@@ -23,9 +23,24 @@ type THS struct {
 	Status  string  // Heading status
 }
 
+func (s THS) ToMap() (map[string]interface{}, error) {
+	m := map[string]interface{}{
+		"heading": s.Heading,
+		"status":  s.Status,
+	}
+	bm, err := s.BaseSentence.toMap()
+	if err != nil {
+		return m, err
+	}
+	for k, v := range bm {
+		m[k] = v
+	}
+	return m, nil
+}
+
 // newTHS constructor
 func newTHS(s BaseSentence) (THS, error) {
-	p := newParser(s)
+	p := NewParser(s)
 	p.AssertType(TypeTHS)
 	m := THS{
 		BaseSentence: s,

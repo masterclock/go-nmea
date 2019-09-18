@@ -13,9 +13,24 @@ type ROT struct {
 	Status string
 }
 
+func (s ROT) ToMap() (map[string]interface{}, error) {
+	m := map[string]interface{}{
+		"rate":   s.Rate,
+		"status": s.Status,
+	}
+	bm, err := s.BaseSentence.toMap()
+	if err != nil {
+		return m, err
+	}
+	for k, v := range bm {
+		m[k] = v
+	}
+	return m, nil
+}
+
 // newROT constructor
 func newROT(s BaseSentence) (ROT, error) {
-	p := newParser(s)
+	p := NewParser(s)
 	p.AssertType(TypeROT)
 	m := ROT{
 		BaseSentence: s,

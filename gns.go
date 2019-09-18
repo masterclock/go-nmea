@@ -38,9 +38,32 @@ type GNS struct {
 	Station    int64
 }
 
+func (s GNS) ToMap() (map[string]interface{}, error) {
+	m := map[string]interface{}{
+		"time":       s.Time.String(),
+		"latitude":   s.Latitude,
+		"longitude":  s.Longitude,
+		"mode":       s.Mode,
+		"svs":        s.SVs,
+		"hdop":       s.HDOP,
+		"altitude":   s.Altitude,
+		"separation": s.Separation,
+		"age":        s.Age,
+		"station":    s.Station,
+	}
+	bm, err := s.BaseSentence.toMap()
+	if err != nil {
+		return m, err
+	}
+	for k, v := range bm {
+		m[k] = v
+	}
+	return m, nil
+}
+
 // newGNS Constructor
 func newGNS(s BaseSentence) (GNS, error) {
-	p := newParser(s)
+	p := NewParser(s)
 	p.AssertType(TypeGNS)
 	m := GNS{
 		BaseSentence: s,

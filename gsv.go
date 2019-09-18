@@ -23,9 +23,36 @@ type GSVInfo struct {
 	SNR         int64 // SNR, 00-99 dB (null when not tracking)
 }
 
+func (s GSV) ToMap() (map[string]interface{}, error) {
+	infos := make([]map[string]interface{}, len(s.Info))
+	for idx, info := range s.Info {
+		in := map[string]interface{}{
+			"sv_prn_number": info.SVPRNNumber,
+			"elevation":     info.Elevation,
+			"azimuth":       info.Azimuth,
+			"snr":           info.SNR,
+		}
+		infos[idx] = in
+	}
+	m := map[string]interface{}{
+		"total_messages":     s.TotalMessages,
+		"message_number":     s.MessageNumber,
+		"number_svs_in_view": s.NumberSVsInView,
+		"info":               infos,
+	}
+	bm, err := s.BaseSentence.toMap()
+	if err != nil {
+		return m, err
+	}
+	for k, v := range bm {
+		m[k] = v
+	}
+	return m, nil
+}
+
 // newGSV constructor
 func newGSV(s BaseSentence) (GSV, error) {
-	p := newParser(s)
+	p := NewParser(s)
 	p.AssertType(TypeGSV)
 	m := GSV{
 		BaseSentence:    s,
