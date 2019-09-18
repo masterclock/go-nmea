@@ -34,6 +34,7 @@ func (s RMC) ToMap() (map[string]interface{}, error) {
 		"course":     s.Course,
 		"date":       s.Date.String(),
 		"date_valid": s.Date.Valid,
+		"variation":  s.Variation,
 	}
 	bm, err := s.BaseSentence.toMap()
 	if err != nil {
