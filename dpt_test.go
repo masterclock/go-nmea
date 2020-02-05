@@ -24,6 +24,24 @@ func Test_newDPT(t *testing.T) {
 			},
 			wantErr: false,
 		},
+		{
+			name: "test2",
+			raw:  "$SDDPT,,0.0,21.1*49",
+			want: DPT{
+				Depth:  0,
+				Offset: 0,
+				Range:  21.1,
+			},
+		},
+		{
+			name: "test3",
+			raw:  "$SDDPT,10.7,0.0,21.1*51",
+			want: DPT{
+				Depth:  10.7,
+				Offset: 0,
+				Range:  21.1,
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
